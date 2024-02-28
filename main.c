@@ -8,8 +8,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	FILE *plik;
-	char linia[2050];
-	int liczba_znaków = -1;
+	char linia[2050];//liczba znaków to 2n+1 wymiar labiryntu + znak końca linii
+	int liczba_znaków = -1;//uwzględnia znak końca linii
 
 	plik = fopen(argv[1], "r");
 
