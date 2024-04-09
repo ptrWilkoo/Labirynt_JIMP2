@@ -64,22 +64,22 @@ void binaryToText(FILE *in){
     fread(&wall, sizeof(uint8_t), 1, in);
     fread(&path, sizeof(uint8_t), 1, in);
 
-    printf("id = %u\n", id);
-    printf("escape = %hhu\n", escape);
-    printf("columns = %hu\n", columns);
-    printf("lines = %hu\n", lines);
-    printf("entryX = %hu\n", entryX);
-    printf("entryY = %hu\n", entryY);
-    printf("exitX = %hu\n", exitX);
-    printf("exitY = %hu\n", exitY);
-    printf("reserved_one = %u\n", reserved_one);
-    printf("reserved_two = %u\n", reserved_two);
-    printf("reserved_three = %u\n", reserved_three);
-    printf("counter = %u\n", counter);
-    printf("solution_offset = %u\n", solution_offset);
-    printf("separator = %hhu\n", separator);
-    printf("wall = %hhu\n", wall);
-    printf("path = %hhu\n", path);
+    // printf("id = %u\n", id);
+    // printf("escape = %hhu\n", escape);
+    // printf("columns = %hu\n", columns);
+    // printf("lines = %hu\n", lines);
+    // printf("entryX = %hu\n", entryX);
+    // printf("entryY = %hu\n", entryY);
+    // printf("exitX = %hu\n", exitX);
+    // printf("exitY = %hu\n", exitY);
+    // printf("reserved_one = %u\n", reserved_one);
+    // printf("reserved_two = %u\n", reserved_two);
+    // printf("reserved_three = %u\n", reserved_three);
+    // printf("counter = %u\n", counter);
+    // printf("solution_offset = %u\n", solution_offset);
+    // printf("separator = %hhu\n", separator);
+    // printf("wall = %hhu\n", wall);
+    // printf("path = %hhu\n", path);
 
 
     FILE *out = fopen("maze.txt", "w");

@@ -48,7 +48,8 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
 }
 
 
-void create_folder_and_split_file(FILE *input_fp, int lwp) {
+void create_folder_and_split_file(const char *input_file, int lwp) {
+    FILE *input_fp = fopen(input_file, "r");
     if (input_fp == NULL) {
         perror("Error opening input file");
         exit(EXIT_FAILURE);
@@ -337,18 +338,19 @@ void deadEndKill2 (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
     write_2d_array_to_file(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp)+1 );
 }
 
-void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
+void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
     
+    FILE *path = fopen("path.txt", "w");
+
+    int i;
+    int j;
     char current='t';
     char previous='t';
-    int count=0;
+    int count= -1;
 
-    int i, j;
-
-    int pliki = -1;
+    int pliki = 1;
     int found = 0;
-    while(!found){
-        pliki+=2;
+    while(found == 0){
         wczytajLabZPliku(2*lwp, lk, lab, pliki);
         wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
 
@@ -361,6 +363,7 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
                 }
             }
         }
+        pliki+=2;
     }
 
     
@@ -383,23 +386,13 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
             //printf("tu4\n");
         }
     }
+    int iter = 10;
 
-    int iter = 0;
-    int spr = 1;
+
 
     while(lab[i+1][j] != 'K' && lab[i-1][j] != 'K' && lab[i][j-1] != 'K' && lab[i][j+1] != 'K'){
 
-        // int pola = 0;
-        // if(lab[i+1][j] == ' ') pola++;
-        // if(lab[i-1][j] == ' ') pola++;
-        // if(lab[i][j+1] == ' ') pola++;
-        // if(lab[i][j-1] == ' ') pola++;
-
-        // if(pola>2){
-
-        // }
-
-        if(i == 1 && iter == spr){
+        if(i == 1 && iter == 0){
             pliki-=2;
             wczytajLabZPliku(2*lwp, lk, lab, pliki);
             wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
@@ -410,44 +403,44 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
             previous = current;
             current = 'N';
             if(previous != current){
-                printf("%c%d\n", previous, count);
+                fprintf(path, "%c%d", previous, count);
                 previous = current;
-                count = 0;
+                count = -1;
             }
             
-            for(int a=0; a<2*lwp; a++){
-                for(int b=0; b<lk; b++){
-                    printf("%c", lab[a][b]);
-                }
-                printf("\n");
-            }
+            // for(int a=0; a<2*lwp; a++){
+            //     for(int b=0; b<lk; b++){
+            //         printf("%c", lab[a][b]);
+            //     }
+            //     printf("\n");
+            // }
 
         }else
-        if(i == 31 && iter == spr){
+        if(i == 31 && iter == 0){
             pliki+=2;
             wczytajLabZPliku(2*lwp, lk, lab, pliki);
             wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
-            printf("pliki: %d %d\n", pliki, pliki+1);
+            //printf("pliki: %d %d\n", pliki, pliki+1);
             i = 1;
 
             count++;
             previous = current;
             current = 'S';
             if(previous != current){
-                printf("%c%d\n", previous, count);
+                fprintf(path, "%c%d", previous, count);
                 previous = current;
-                count = 0;
+                count = -1;
             }
 
-            for(int a=0; a<2*lwp; a++){
-                for(int b=0; b<lk; b++){
-                    printf("%c", lab[a][b]);
-                }
-                printf("\n");
-            }
+            // for(int a=0; a<2*lwp; a++){
+            //     for(int b=0; b<lk; b++){
+            //         printf("%c", lab[a][b]);
+            //     }
+            //     printf("\n");
+            // }
         }
 
-        spr = iter;
+        iter = 0;
 
         //printf("%d, %d - %c\n", i, j, lab[i][j]);
 
@@ -459,10 +452,10 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
             count++;
             if(current != previous){
                 if(previous != 't'){
-                    printf("%c%d\n", previous, count);
+                    fprintf(path, "%c%d", previous, count);
                 }
                 
-                count = 0;
+                count = -1;
                 previous = current;
             }
             iter++;
@@ -476,9 +469,9 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
             
             if(current != previous){
                 if(previous != 't'){
-                    printf("%c%d\n", previous, count);
+                    fprintf(path, "%c%d", previous, count);
                 }
-                count = 0;
+                count = -1;
                 previous = current;
             }
             iter++;
@@ -491,9 +484,9 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
             count++;
             if(current != previous){
                 if(previous != 't'){
-                    printf("%c%d\n", previous, count);
+                    fprintf(path, "%c%d", previous, count);
                 }
-                count = 0;
+                count = -1;
                 previous = current;
             }
             iter++;
@@ -506,9 +499,9 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
             count++;
             if(current != previous){
                 if(previous != 't'){
-                    printf("%c%d\n", previous, count);
+                    fprintf(path, "%c%d", previous, count);
                 }
-                count = 0;
+                count = -1;
                 previous = current;
             }
             iter++;
@@ -516,9 +509,10 @@ void pathFinder (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
         
         if(lab[i+1][j] == 'K' || lab[i-1][j] == 'K' || lab[i][j-1] == 'K' || lab[i][j+1] == 'K'){
             count++;
-            printf("%c%d\n", previous, count);
+            fprintf(path, "%c%d", previous, count);
         }
     }
+    fclose(path);
 }
 
 
