@@ -1,30 +1,31 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "input.h"
+#include "solver.h"
+#include "output.h"
 
-int main(int argc, char *argv[]) {
-	if (argc != 2) {
-		printf("Nie podano nazwy pliku!");
-		return 1;
-	}
+int main(int argc, char **argv){
 
-	FILE *plik;
-	char linia[2050];//liczba znaków to 2n+1 wymiar labiryntu + znak końca linii
-	int liczba_znaków = -1;//uwzględnia znak końca linii
+    FILE *bin = fopen("maze.bin", "rb"); // argv
 
-	plik = fopen(argv[1], "r");
+    binaryToText(bin);
 
-	if(plik == NULL) {
-		printf("Nie udało się otworzyć pliku!");
-		return 1;
-	}
+    fclose(bin);
 
-	if(fgets(linia, sizeof(linia), plik)) {
-		for(int i = 0; linia[i] != '\0'; i++) {
-			liczba_znaków++;
-		}
-	}
+    FILE *in = fopen("maze.txt", "r");
 
-	printf("Liczba znaków w wierszu: %d\n", liczba_znaków);
+    int kolumny = (liczKolumny(in)-1)/2;
+    int wiersze = (liczWiersze(in))/2;
+    printf("%d - %d\n", kolumny, wiersze);
+    int ilosclinii = 16;
 
-	return 0;
+    create_folder_and_split_file(in, ilosclinii);
+    
+    char labirynt[2*ilosclinii][2*kolumny+1];
+    
+    deadEndKill2(2*wiersze+1, 2*kolumny+1, ilosclinii, labirynt);
+
+    //printPliki( (((2*wiersze)-((2*wiersze)%ilosclinii))/ilosclinii)+1, wiersze, kolumny, ilosclinii );
+
+    pathFinder(wiersze, kolumny, ilosclinii, labirynt);
+    
+    delete_folder_recursively("pliki");
 }
