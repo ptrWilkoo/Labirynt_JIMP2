@@ -126,7 +126,8 @@ void binaryToText(FILE *in){
             }
         }
     }
-    fclose(in);
+    fseek(in, 0, SEEK_SET);
+
     fclose(out);
 
 }

@@ -23,7 +23,7 @@ void binaryOutput(FILE *in){
     FILE *out = fopen("binary.bin", "wb");
     
 
-        // Read and write data accordingly
+    // Read and write data accordingly
     fread(&id, sizeof(uint32_t), 1, in);
     fwrite(&id, sizeof(uint32_t), 1, out);
 
@@ -81,22 +81,22 @@ void binaryOutput(FILE *in){
 
 
     // co jesli count > 9 
-    char ch;
-    int pom = 0;
-    while((ch = fgetc(sciezka)) != EOF){
-        if(pom % 2 != 0){
-            int kroki = ch - '0';
+    // char ch;
+    // int pom = 0;
+    // while((ch = fgetc(sciezka)) != EOF){
+    //     if(pom % 2 != 0){
+    //         int kroki = ch - '0';
             
-            uint8_t kroki_bin = (uint8_t)kroki;
-            printf("%u\n", kroki_bin);
-            fwrite(&kroki_bin, sizeof(uint8_t), 1, out);
-        }else{
-            uint8_t kierunek = ch;
-            printf("%u ", kierunek);
-            fwrite(&kierunek, sizeof(uint8_t), 1, out);
-        }
-        pom++;
-    }
+    //         uint8_t kroki_bin = (uint8_t)kroki;
+    //         printf("%u\n", kroki_bin);
+    //         fwrite(&kroki_bin, sizeof(uint8_t), 1, out);
+    //     }else{
+    //         uint8_t kierunek = ch;
+    //         printf("%u ", kierunek);
+    //         fwrite(&kierunek, sizeof(uint8_t), 1, out);
+    //     }
+    //     pom++;
+    // }
 
 
     // printf("id = %u\n", id);
