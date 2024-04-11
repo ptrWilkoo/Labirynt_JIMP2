@@ -14,7 +14,7 @@ int main(int argc, char **argv){
     
     if(argc<2){
         fprintf(stderr, "Brak parametrow wywolania!\n\n");
-        fprintf(stderr, "Sposób wywołania:\n./a.out -t <Nazwa Pliku>\n(w przypadku pliku tekstowego)\n\n./a.out -b <Nazwa Pliku>\n(w przypadku pliku binarnego)\n\n");
+        fprintf(stderr, "\nSposób wywołania:\n%s -t <Nazwa Pliku>\nW przypadku pliku tekstowego\n\n./a.out -b <Nazwa Plik>\nW przypadku pliku binarnego\n\n", argv[0]);
         return 102;
 
     }
@@ -28,13 +28,17 @@ int main(int argc, char **argv){
             bflag = 1;
             break;
         default:
-            fprintf(stderr, "\nSposób wywołania:\n./a.out -t <Nazwa Pliku>\nW przypadku pliku tekstowego\n\n./a.out -b <Nazwa Pliku\nW przypadku pliku binarnego\n\n>");
+            fprintf(stderr, "\nSposób wywołania:\n%s -t <Nazwa Pliku>\nW przypadku pliku tekstowego\n\n./a.out -b <Nazwa Pliku\nW przypadku pliku binarnego\n\n>", argv[0]);
             return 102;
         }
     }
 
     if(tflag == 1 && bflag == 1){
-        fprintf(stderr, "Mozesz wybrać tylko jeden tryb wczytywania na raz - binarny lub tekstowy");
+        fprintf(stderr, "Mozesz wybrać tylko jeden tryb wczytywania na raz - binarny lub tekstowy\n");
+        return 102;
+    }
+    if(tflag == 0 && bflag == 0){
+        fprintf(stderr, "Musisz wprowdzić flagę rodzaju pliku wejsciowego (-b lub -t)\n");
         return 102;
     }
 
@@ -77,16 +81,24 @@ int main(int argc, char **argv){
 
     int kolumny = (liczKolumny(in))/2;
     int wiersze = (liczWiersze(in))/2;
-    printf("%d - %d\n", kolumny, wiersze);
+    printf("Wymiar labiryntu: %d x %d\n", wiersze, kolumny);
+    printf("Trwa rozwiązywanie labiryntu...\n");
     
     
     char labirynt[2*ilosclinii][2*kolumny+1];
     
     deadEndKill(2*wiersze+1, 2*kolumny+1, ilosclinii, labirynt);
+    
+    pathFinder(2*kolumny+1, ilosclinii, labirynt); // do poprawy - najkrotsza sciezka
 
-    //pathFinder(2*kolumny+1, ilosclinii, labirynt); // najktorsza sciezka
+    if(tflag == 1){
+        outputFromText(in);
+    }
+    if(bflag == 1){
+        outputFromBinary(bin);
+    }
 
-    outputFromText(in);
+    //printPliki( (((2*wiersze)-((2*wiersze)%ilosclinii))/ilosclinii)+1, wiersze, kolumny, ilosclinii );
 
     delete_folder_recursively("pliki");
     fclose(in);

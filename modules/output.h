@@ -2,4 +2,5 @@
 #include <stdio.h>
 
 int isDigit(char x);
-int outputFromText(FILE *in);
+void outputFromBinary(FILE *in);
+void outputFromText(FILE *in);
