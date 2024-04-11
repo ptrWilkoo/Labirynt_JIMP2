@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void binaryOutput(FILE *in);
-int outputFromText(FILE *in);
+int isDigit(char x);
+void outputFromBinary(FILE *in);
+void outputFromText(FILE *in);
