@@ -10,18 +10,26 @@ int liczKolumny(FILE *plik){
         liczbaKolumn++;
     }
 
+    fseek(plik, 0, SEEK_SET);
     return liczbaKolumn;
 }
 
 int liczWiersze(FILE *plik){
     fseek(plik, 0, SEEK_SET);
 
-    int liczbaWierszy = 0;
+    int liczbaWierszy = 1;
     int ch;
+    int prev;
 
     while((ch = fgetc(plik)) != EOF){
             if(ch == '\n') liczbaWierszy++;
+            prev = ch;
+
     }
+
+    if(ch == EOF && prev == '\n') liczbaWierszy--;
+
+    fseek(plik, 0, SEEK_SET);
     return liczbaWierszy;
 }
 
@@ -64,22 +72,22 @@ void binaryToText(FILE *in){
     fread(&wall, sizeof(uint8_t), 1, in);
     fread(&path, sizeof(uint8_t), 1, in);
 
-    printf("id = %u\n", id);
-    printf("escape = %hhu\n", escape);
-    printf("columns = %hu\n", columns);
-    printf("lines = %hu\n", lines);
-    printf("entryX = %hu\n", entryX);
-    printf("entryY = %hu\n", entryY);
-    printf("exitX = %hu\n", exitX);
-    printf("exitY = %hu\n", exitY);
-    printf("reserved_one = %u\n", reserved_one);
-    printf("reserved_two = %u\n", reserved_two);
-    printf("reserved_three = %u\n", reserved_three);
-    printf("counter = %u\n", counter);
-    printf("solution_offset = %u\n", solution_offset);
-    printf("separator = %hhu\n", separator);
-    printf("wall = %hhu\n", wall);
-    printf("path = %hhu\n", path);
+    // printf("id = %u\n", id);
+    // printf("escape = %hhu\n", escape);
+    // printf("columns = %hu\n", columns);
+    // printf("lines = %hu\n", lines);
+    // printf("entryX = %hu\n", entryX);
+    // printf("entryY = %hu\n", entryY);
+    // printf("exitX = %hu\n", exitX);
+    // printf("exitY = %hu\n", exitY);
+    // printf("reserved_one = %u\n", reserved_one);
+    // printf("reserved_two = %u\n", reserved_two);
+    // printf("reserved_three = %u\n", reserved_three);
+    // printf("counter = %u\n", counter);
+    // printf("solution_offset = %u\n", solution_offset);
+    // printf("separator = %hhu\n", separator);
+    // printf("wall = %hhu\n", wall);
+    // printf("path = %hhu\n", path);
 
 
     FILE *out = fopen("maze.txt", "w");
@@ -105,10 +113,10 @@ void binaryToText(FILE *in){
             
             fread(&temp, sizeof(uint8_t), 1, in); //count
             ile = temp + 1;
-            int counter = 0;
+            int count = 0;
 
             j--;
-            while(counter<ile){
+            while(count<ile){
                 j++;
                 if(j == columns){
                     j=0;
@@ -122,11 +130,12 @@ void binaryToText(FILE *in){
                 }else{
                     fprintf(out, "%c", znak);
                 }
-                counter++;              
+                count++;              
             }
         }
     }
-    fclose(in);
+    fseek(in, 0, SEEK_SET);
+
     fclose(out);
 
 }
