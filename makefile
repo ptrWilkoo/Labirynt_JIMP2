@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
 
 # Source files
-SRCS = main.c input.c output.c solver.c
+SRCS = modules/main.c modules/input.c modules/output.c modules/solver.c modules/errors.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

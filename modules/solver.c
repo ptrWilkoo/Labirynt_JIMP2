@@ -295,7 +295,7 @@ void mrowka (int lwplik, int lk, char lab[lwplik][lk], int pi, int pj, int plik_
 }
 
 
-void deadEndKill2 (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
+void deadEndKill (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
     wczytajLabZPliku(2*lwp, lk, lab, 1);
     wczytajLabZPliku(2*lwp, lk, lab, 2);
     
@@ -348,9 +348,10 @@ void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
     char previous='t';
     int count= -1;
 
-    int pliki = 1;
+    int pliki = -1;
     int found = 0;
     while(found == 0){
+        pliki+=2;
         wczytajLabZPliku(2*lwp, lk, lab, pliki);
         wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
 
@@ -360,13 +361,14 @@ void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
                     found = 1;
                     i = a;
                     j = b;
+                    
                 }
             }
         }
-        pliki+=2;
+        
     }
 
-    
+    printf("pliki: %d %d\n", pliki, pliki+1);
     
 
     if(lab[i][j] == 'P'){
@@ -396,7 +398,7 @@ void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
             pliki-=2;
             wczytajLabZPliku(2*lwp, lk, lab, pliki);
             wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
-            //printf("pliki: %d %d\n", pliki, pliki+1);
+            printf("pliki: %d %d\n", pliki, pliki+1);
             i = 2*lwp-1;
             
             count++;
@@ -408,19 +410,19 @@ void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
                 count = -1;
             }
             
-            // for(int a=0; a<2*lwp; a++){
-            //     for(int b=0; b<lk; b++){
-            //         printf("%c", lab[a][b]);
-            //     }
-            //     printf("\n");
-            // }
+            for(int a=0; a<2*lwp; a++){
+                for(int b=0; b<lk; b++){
+                    printf("%c", lab[a][b]);
+                }
+                printf("\n");
+            }
 
         }else
-        if(i == 31 && iter == 0){
+        if(i == 31 && iter == 0) {
             pliki+=2;
             wczytajLabZPliku(2*lwp, lk, lab, pliki);
             wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
-            //printf("pliki: %d %d\n", pliki, pliki+1);
+            printf("pliki: %d %d\n", pliki, pliki+1);
             i = 1;
 
             count++;
@@ -432,17 +434,17 @@ void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
                 count = -1;
             }
 
-            // for(int a=0; a<2*lwp; a++){
-            //     for(int b=0; b<lk; b++){
-            //         printf("%c", lab[a][b]);
-            //     }
-            //     printf("\n");
-            // }
+            for(int a=0; a<2*lwp; a++){
+                for(int b=0; b<lk; b++){
+                    printf("%c", lab[a][b]);
+                }
+                printf("\n");
+            }
         }
 
         iter = 0;
 
-        //printf("%d, %d - %c\n", i, j, lab[i][j]);
+        printf("%d, %d - %c\n", i, j, lab[i][j]);
 
         if(lab[i][j-1] == ' ' && previous != 'E'){
             //printf("%d, %d - %c\n", i, j, lab[i][j]);
@@ -480,6 +482,9 @@ void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
             //printf("%d, %d - %c\n", i, j, lab[i][j]);
             current = 'N';
             i-=2;
+            if(i < 1){
+                break;
+            }
             //printf("tam3\n");
             count++;
             if(current != previous){
@@ -495,6 +500,9 @@ void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
             //printf("%d, %d - %c\n", i, j, lab[i][j]);
             current = 'S';
             i+=2;
+            if(i > 31){
+                break;
+            }
             //printf("tam4\n");
             count++;
             if(current != previous){

@@ -10,18 +10,26 @@ int liczKolumny(FILE *plik){
         liczbaKolumn++;
     }
 
+    fseek(plik, 0, SEEK_SET);
     return liczbaKolumn;
 }
 
 int liczWiersze(FILE *plik){
     fseek(plik, 0, SEEK_SET);
 
-    int liczbaWierszy = 0;
+    int liczbaWierszy = 1;
     int ch;
+    int prev;
 
     while((ch = fgetc(plik)) != EOF){
             if(ch == '\n') liczbaWierszy++;
+            prev = ch;
+
     }
+
+    if(ch == EOF && prev == '\n') liczbaWierszy--;
+
+    fseek(plik, 0, SEEK_SET);
     return liczbaWierszy;
 }
 
@@ -105,10 +113,10 @@ void binaryToText(FILE *in){
             
             fread(&temp, sizeof(uint8_t), 1, in); //count
             ile = temp + 1;
-            int counter = 0;
+            int count = 0;
 
             j--;
-            while(counter<ile){
+            while(count<ile){
                 j++;
                 if(j == columns){
                     j=0;
@@ -122,7 +130,7 @@ void binaryToText(FILE *in){
                 }else{
                     fprintf(out, "%c", znak);
                 }
-                counter++;              
+                count++;              
             }
         }
     }
