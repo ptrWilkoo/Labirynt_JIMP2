@@ -1,6 +1,14 @@
 #include "output.h"
 #include "input.h"
 
+int isDigit(char x){
+    if(x >= '0' && x <= '9'){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
 int outputFromText(FILE *in){
 
     FILE *out = fopen("wynik.bin", "wb");
@@ -150,25 +158,64 @@ int outputFromText(FILE *in){
     fseek(in, 0, SEEK_SET);
     
     // sciezka
-    //FILE *filePath = fopen("path.txt", "rt");
+    FILE *sciezka = fopen("path.txt", "rt");
 
     uint32_t path_id = 0x52524243;
     uint8_t steps = 100; // todo - policz kroki w sciezce
 
     fwrite(&path_id, sizeof(uint32_t), 1, out);
-    // fwrite(&steps, sizeof(uint8_t), 1, out);
+    fwrite(&steps, sizeof(uint8_t), 1, out);
 
 
     // zapis sciezki
 
-    
+    int c = 0;
+    prev = 't';
+    int prev_c = 0;
+    int liczba = 0;
+
+    while((c = fgetc(sciezka)) != EOF){
+
+        if(c != '\n'){
+            if(isDigit(c)){
+                if(isDigit(prev)){
+                    liczba *= 10;
+                    liczba += (c - '0');
+                }else{
+                    liczba += (c - '0');
+                }
+                
+            }else{     
+                if(isDigit(prev)){
+
+                    if(liczba > 255){
+                        while(liczba > 0) {
+                            int pom = liczba > 255 ? 255 : liczba; 
+                            fwrite(&prev_c, sizeof(uint8_t), 1, out);
+                            fwrite(&pom, sizeof(uint8_t), 1, out); 
+                            liczba -= pom;
+                        }
+                    }else{
+                        fwrite(&prev_c, sizeof(uint8_t), 1, out);
+                        fwrite(&liczba, sizeof(uint8_t), 1, out);
+                        liczba = 0;
+                    }       
+                }
+                prev_c = c;
+            }
+            prev = c;
+        }
+        
+    }
+    fwrite(&prev_c, sizeof(uint8_t), 1, out);
+    fwrite(&liczba, sizeof(uint8_t), 1, out);
+
+    fseek(sciezka, 0, SEEK_SET);
+
+    fclose(sciezka);
     fclose(in);
     fclose(out);
     
-
-
-    
-    //fclose(filePath);
 
     return 0;
 }
