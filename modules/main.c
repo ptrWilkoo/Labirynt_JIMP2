@@ -7,7 +7,7 @@ int main(int argc, char **argv){
     int opt;
     FILE *in = NULL;
     FILE *bin = NULL;
-    const int ilosclinii = 16;
+    int ilosclinii = 8;
 
     int tflag = 0;
     int bflag = 0;
@@ -81,6 +81,9 @@ int main(int argc, char **argv){
 
     int kolumny = (liczKolumny(in))/2;
     int wiersze = (liczWiersze(in))/2;
+    if (kolumny >= 32) {
+        ilosclinii= 32;
+    }
     char labirynt[2*ilosclinii][2*kolumny+1];
     printf("Wymiar labiryntu: %d x %d\n", wiersze, kolumny);
 
