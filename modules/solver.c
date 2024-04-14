@@ -12,7 +12,7 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
         // Otwarcie pliku
         file = fopen(filename, "r");
         if (file == NULL) {
-            perror("Błąd otwarcia pliku");
+            //perror("Błąd otwarcia pliku");
             exit(EXIT_FAILURE);
         }
 
@@ -31,7 +31,7 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
     // Otwarcie pliku
     file = fopen(filename, "r");
     if (file == NULL) {
-        perror("Błąd otwarcia pliku");
+        //perror("Błąd otwarcia pliku");
         exit(EXIT_FAILURE);
     }
 
@@ -132,7 +132,7 @@ int wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
     sprintf(nazwaPlikuZDanymi, "pliki/plik_%d.txt", tryb);
     FILE *plik = fopen(nazwaPlikuZDanymi, "r");
     if (plik == NULL) {
-        printf("Nie można otworzyć pliku.\n");
+        //printf("Nie można otworzyć pliku.\n");
         return tryb;
     }
 
