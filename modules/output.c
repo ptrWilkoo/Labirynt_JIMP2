@@ -1,5 +1,6 @@
 #include "output.h"
 #include "input.h"
+#include "errors.h"
 
 int isDigit(char x){
     if(x >= '0' && x <= '9'){
@@ -29,6 +30,12 @@ void outputFromBinary(FILE *in){
     uint8_t path;
 
     FILE *sciezka = fopen("path.txt", "rt");
+
+    if(FileOpenError(sciezka, "path.txt")){
+
+        return;
+    }
+
     FILE *out = fopen("wynik.bin", "wb");
 
     fseek(in, 0, SEEK_SET);
@@ -300,6 +307,10 @@ void outputFromText(FILE *in){
     
     // sciezka
     FILE *sciezka = fopen("path.txt", "rt");
+
+    if(FileOpenError(sciezka, "path.txt")){
+        return;
+    }
 
     uint32_t path_id = 0x52524243;
     uint8_t steps = 100; // todo - policz kroki w sciezce
