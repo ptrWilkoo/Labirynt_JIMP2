@@ -81,24 +81,23 @@ int main(int argc, char **argv){
 
     int kolumny = (liczKolumny(in))/2;
     int wiersze = (liczWiersze(in))/2;
-    printf("Wymiar labiryntu: %d x %d\n", wiersze, kolumny);
-    printf("Trwa rozwiązywanie labiryntu...\n");
-    
-    
     char labirynt[2*ilosclinii][2*kolumny+1];
-    
+    printf("Wymiar labiryntu: %d x %d\n", wiersze, kolumny);
+
+
+    printf("Trwa rozwiązywanie labiryntu...\n");
     deadEndKill(2*wiersze+1, 2*kolumny+1, ilosclinii, labirynt);
-    
-    pathFinder(2*kolumny+1, ilosclinii, labirynt); // do poprawy - najkrotsza sciezka
+
+    int steps = 0;
+    pathFind(2*wiersze+1, 2*kolumny+1, ilosclinii, labirynt, &steps);
+    //printf("kroki - %d\n", steps);
 
     if(tflag == 1){
-        outputFromText(in);
+        outputFromText(in, &steps);
     }
     if(bflag == 1){
-        outputFromBinary(bin);
+        outputFromBinary(bin, &steps);
     }
-
-    //printPliki( (((2*wiersze)-((2*wiersze)%ilosclinii))/ilosclinii)+1, wiersze, kolumny, ilosclinii );
 
     delete_folder_recursively("pliki");
     fclose(in);
