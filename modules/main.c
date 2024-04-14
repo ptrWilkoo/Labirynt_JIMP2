@@ -41,13 +41,16 @@ int main(int argc, char **argv){
         fprintf(stderr, "Musisz wprowdzić flagę rodzaju pliku wejsciowego (-b lub -t)\n");
         return 102;
     }
-
+    
     if(tflag == 1){
         in = fopen(argv[2], "rt");
         if(FileOpenError(in, argv[2])){
             return 101;
         }
-
+        int wiersze_pom = (liczWiersze(in))/2;
+        if (wiersze_pom >= 32) {
+            ilosclinii= 32;
+        }
         create_folder_and_split_file(argv[2], ilosclinii);
     }
     if(bflag == 1){
@@ -81,9 +84,7 @@ int main(int argc, char **argv){
 
     int kolumny = (liczKolumny(in))/2;
     int wiersze = (liczWiersze(in))/2;
-    if (kolumny >= 32) {
-        ilosclinii= 32;
-    }
+
     char labirynt[2*ilosclinii][2*kolumny+1];
     printf("Wymiar labiryntu: %d x %d\n", wiersze, kolumny);
 
