@@ -65,7 +65,10 @@ int main(int argc, char **argv){
         if(FileOpenError(in, argv[2])){
             return 101;
         }
-
+        int wiersze_pom = (liczWiersze(in))/2;
+        if (wiersze_pom >= 32) {
+            ilosclinii= 32;
+        }
         create_folder_and_split_file("maze.txt", ilosclinii);
     }
 
@@ -81,7 +84,12 @@ int main(int argc, char **argv){
         delete_folder_recursively("pliki");
         return 103;
     }
-
+    
+    int wiersze_pom = (liczWiersze(in))/2;
+    if (wiersze_pom >= 32) {
+        ilosclinii= 32;
+    }
+    
     int kolumny = (liczKolumny(in))/2;
     int wiersze = (liczWiersze(in))/2;
 
@@ -102,7 +110,7 @@ int main(int argc, char **argv){
     if(bflag == 1){
         outputFromBinary(bin, &steps);
     }
-
+    
     delete_folder_recursively("pliki");
     fclose(in);
     fclose(bin);

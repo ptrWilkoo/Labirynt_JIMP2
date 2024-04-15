@@ -2,7 +2,7 @@
 
 void printPliki(int numFiles, int lw, int lk, int lwp) {
 
-    char filename[30]; // zakładam, że nazwa pliku nie przekroczy 20 znaków (plik_999999.txt)
+    char filename[30];
     FILE *file;
 
     for (int i = 1; i <= numFiles-1; ++i) {

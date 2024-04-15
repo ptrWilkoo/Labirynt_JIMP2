@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <dirent.h>
 
-#define MAX_LINE_LENGTH 2050
+#define MAX_LINE_LENGTH 2051
 
 void printPliki(int numFiles, int lw, int lk, int lwp) ;
 void create_folder_and_split_file(const char *input_file, int lwp);
