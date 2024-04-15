@@ -126,17 +126,15 @@ void delete_folder_recursively(const char *folder_path) {
     }
 }
 
-
-int wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
+void wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
     char nazwaPlikuZDanymi[50];
     sprintf(nazwaPlikuZDanymi, "pliki/plik_%d.txt", tryb);
     FILE *plik = fopen(nazwaPlikuZDanymi, "r");
     if (plik == NULL) {
         //printf("Nie można otworzyć pliku.\n");
-        return tryb;
+        return;
     }
 
-    char pom[lw][lk+1];
     int i, end;
     
     if (tryb % 2 == 1) {
@@ -149,32 +147,28 @@ int wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
     
     do {
         for (int j = 0; j < lk+1; j++) {
-            fscanf(plik, "%c", &pom[i][j]);
+            char znak;
+            if (fscanf(plik, "%c", &znak) != 1) {
+                // Obsługa błędu wczytywania znaku
+                // Tutaj można dodać odpowiednie działania, np. zakończenie wczytywania lub obsługę błędu
+                fclose(plik);
+                return;
+            }
+            if (j < lk) {
+                labirynt[i][j] = znak;
+            } else {
+                // Ignorowanie znaku końca linii, jeśli przekroczono liczbę kolumn
+                // Można to potraktować jako obsługę przypadku, gdy linia w pliku jest za długa
+            }
         }
         i++;
     } while (i < end);
-    
-
-    if (tryb % 2 == 1) {
-        i = 0;
-        end = lw/2;
-    } else {
-        i = lw/2;
-        end = lw;
-    }
-    
-    do {
-        for (int j = 0; j < lk; j++) {
-            labirynt[i][j]= pom[i][j];
-        }
-        i++;
-    } while (i < end);
-
 
     fclose(plik);
     //printf("\nWczytano plik: %d\n", tryb);
-    return 1;
 }
+
+
 
 
 void write_2d_array_to_file(int x, int y, char array[x][y], int tryb) {
