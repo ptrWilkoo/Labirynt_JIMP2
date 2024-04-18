@@ -1,1 +1,7 @@
 *.o
+*.txt
+*.bin
+Makefile
+program
+.DS_Store/
+pliki/

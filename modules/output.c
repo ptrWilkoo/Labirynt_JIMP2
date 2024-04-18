@@ -10,7 +10,7 @@ int isDigit(char x){
     }
 }
 
-void outputFromBinary(FILE *in){
+void outputFromBinary(FILE *in, int *kroki){
 
     uint32_t id;
     uint8_t escape;
@@ -32,7 +32,7 @@ void outputFromBinary(FILE *in){
     FILE *sciezka = fopen("path.txt", "rt");
 
     if(FileOpenError(sciezka, "path.txt")){
-
+        printf("Błąd otwarcia pliku path.txt\n");
         return;
     }
 
@@ -100,13 +100,10 @@ void outputFromBinary(FILE *in){
         licz++;
     }
 
-    
-
     // zapis sciezki
-
     fwrite(&id, sizeof(uint32_t), 1, out);
-    uint8_t steps = 100; // do zrobienia
-    fwrite(&steps, sizeof(uint8_t), 1, out);
+    uint32_t steps = *kroki;
+    fwrite(&steps, sizeof(uint32_t), 1, out);
 
     int c = 0;
     int prev = 't';
@@ -157,7 +154,7 @@ void outputFromBinary(FILE *in){
     fclose(sciezka);
 }
 
-void outputFromText(FILE *in){
+void outputFromText(FILE *in, int *kroki){
 
     FILE *out = fopen("wynik.bin", "wb");
 
@@ -183,7 +180,6 @@ void outputFromText(FILE *in){
         }
     }
     fseek(in, 0, SEEK_SET);
-
 
     uint16_t entryX = x;
     uint16_t entryY = y;
@@ -255,7 +251,6 @@ void outputFromText(FILE *in){
     int prev_ch = 't';
     count = 0;
     int znak = 0;
-    int test = 0;
     while((ch = fgetc(in)) != EOF){
 
         if(ch == 'X'){
@@ -313,14 +308,13 @@ void outputFromText(FILE *in){
     }
 
     uint32_t path_id = 0x52524243;
-    uint8_t steps = 100; // todo - policz kroki w sciezce
+    uint32_t steps = *kroki;
 
     fwrite(&path_id, sizeof(uint32_t), 1, out);
-    fwrite(&steps, sizeof(uint8_t), 1, out); // todo
+    fwrite(&steps, sizeof(uint32_t), 1, out);
 
 
     // zapis sciezki
-
     int c = 0;
     prev = 't';
     int prev_c = 0;
@@ -367,5 +361,4 @@ void outputFromText(FILE *in){
     fclose(sciezka);
     fclose(in);
     fclose(out);
-    
 }

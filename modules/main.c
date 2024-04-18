@@ -7,7 +7,7 @@ int main(int argc, char **argv){
     int opt;
     FILE *in = NULL;
     FILE *bin = NULL;
-    const int ilosclinii = 16;
+    int ilosclinii = 8;
 
     int tflag = 0;
     int bflag = 0;
@@ -41,14 +41,17 @@ int main(int argc, char **argv){
         fprintf(stderr, "Musisz wprowdzić flagę rodzaju pliku wejsciowego (-b lub -t)\n");
         return 102;
     }
-
+    
     if(tflag == 1){
         in = fopen(argv[2], "rt");
         if(FileOpenError(in, argv[2])){
             return 101;
         }
-
-        create_folder_and_split_file(argv[2], ilosclinii);
+        int wiersze_pom = (liczWiersze(in))/2;
+        if (wiersze_pom >= 32) {
+            ilosclinii= 32;
+        }
+        splitFile(argv[2], ilosclinii);
     }
     if(bflag == 1){
         bin = fopen(argv[2], "rb");
@@ -62,45 +65,53 @@ int main(int argc, char **argv){
         if(FileOpenError(in, argv[2])){
             return 101;
         }
-
-        create_folder_and_split_file("maze.txt", ilosclinii);
+        int wiersze_pom = (liczWiersze(in))/2;
+        if (wiersze_pom >= 32) {
+            ilosclinii= 32;
+        }
+        splitFile("maze.txt", ilosclinii);
     }
 
     if(ExitError(in)){
-        delete_folder_recursively("pliki");
+        deleteFolder("pliki");
         return 103;
     }
     if(EntryError(in)){
-        delete_folder_recursively("pliki");
+        deleteFolder("pliki");
         return 103;
     }
     if(invalidMaze(in)){
-        delete_folder_recursively("pliki");
+        deleteFolder("pliki");
         return 103;
     }
-
+    
+    int wiersze_pom = (liczWiersze(in))/2;
+    if (wiersze_pom >= 32) {
+        ilosclinii= 32;
+    }
+    
     int kolumny = (liczKolumny(in))/2;
     int wiersze = (liczWiersze(in))/2;
-    printf("Wymiar labiryntu: %d x %d\n", wiersze, kolumny);
-    printf("Trwa rozwiązywanie labiryntu...\n");
-    
-    
+
     char labirynt[2*ilosclinii][2*kolumny+1];
-    
+    printf("Wymiar labiryntu: %d x %d\n", wiersze, kolumny);
+
+
+    printf("Trwa rozwiązywanie labiryntu...\n");
     deadEndKill(2*wiersze+1, 2*kolumny+1, ilosclinii, labirynt);
-    
-    pathFinder(2*kolumny+1, ilosclinii, labirynt); // do poprawy - najkrotsza sciezka
+
+    int steps = 0;
+    pathFind(2*wiersze+1, 2*kolumny+1, ilosclinii, labirynt, &steps);
+    //printf("kroki - %d\n", steps);
 
     if(tflag == 1){
-        outputFromText(in);
+        outputFromText(in, &steps);
     }
     if(bflag == 1){
-        outputFromBinary(bin);
+        outputFromBinary(bin, &steps);
     }
-
-    //printPliki( (((2*wiersze)-((2*wiersze)%ilosclinii))/ilosclinii)+1, wiersze, kolumny, ilosclinii );
-
-    delete_folder_recursively("pliki");
+    
+    deleteFolder("pliki");
     fclose(in);
     fclose(bin);
 }

@@ -2,7 +2,7 @@
 
 void printPliki(int numFiles, int lw, int lk, int lwp) {
 
-    char filename[30]; // zakładam, że nazwa pliku nie przekroczy 20 znaków (plik_999999.txt)
+    char filename[30];
     FILE *file;
 
     for (int i = 1; i <= numFiles-1; ++i) {
@@ -12,7 +12,6 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
         // Otwarcie pliku
         file = fopen(filename, "r");
         if (file == NULL) {
-            perror("Błąd otwarcia pliku");
             exit(EXIT_FAILURE);
         }
 
@@ -31,7 +30,6 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
     // Otwarcie pliku
     file = fopen(filename, "r");
     if (file == NULL) {
-        perror("Błąd otwarcia pliku");
         exit(EXIT_FAILURE);
     }
 
@@ -48,18 +46,17 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
 }
 
 
-void create_folder_and_split_file(const char *input_file, int lwp) {
+void splitFile(const char *input_file, int lwp) {
     FILE *input_fp = fopen(input_file, "r");
     if (input_fp == NULL) {
-        perror("Error opening input file");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Błąd otwarcia pliku %s\n", input_file);
+        return;
     }
 
-    // Create a folder to store new files
     char folder_name[] = "pliki";
     if (mkdir(folder_name, 0777) == -1) {
-        perror("Error creating folder");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Bład tworzernia folderu!");
+        return;
     }
 
     char output_file[MAX_LINE_LENGTH];
@@ -69,7 +66,7 @@ void create_folder_and_split_file(const char *input_file, int lwp) {
 
     char line[MAX_LINE_LENGTH];
     while (fgets(line, MAX_LINE_LENGTH, input_fp) != NULL) {
-        // Open new output file if needed
+
         if (line_count % lwp == 0) {
             if (output_fp != NULL) {
                 fclose(output_fp);
@@ -77,30 +74,25 @@ void create_folder_and_split_file(const char *input_file, int lwp) {
             sprintf(output_file, "%s/plik_%d.txt", folder_name, file_count++);
             output_fp = fopen(output_file, "w");
             if (output_fp == NULL) {
-                perror("Error creating output file");
+                fprintf(stderr, "Bład tworzenia pliku %s\n", output_file);
                 exit(EXIT_FAILURE);
             }
         }
-
-        // Write line to output file
         fputs(line, output_fp);
         line_count++;
     }
-
-    // Close last output file
     if (output_fp != NULL) {
         fclose(output_fp);
     }
 
-    // Close input file
     fclose(input_fp);
 }
 
 
-void delete_folder_recursively(const char *folder_path) {
+void deleteFolder(const char *folder_path) {
     DIR *dir = opendir(folder_path);
     if (dir == NULL) {
-        perror("Error opening folder");
+        fprintf(stderr, "Bład otwarcia folderu!");
         return;
     }
 
@@ -112,31 +104,29 @@ void delete_folder_recursively(const char *folder_path) {
         char path[1024];
         snprintf(path, sizeof(path), "%s/%s", folder_path, entry->d_name);
         if (entry->d_type == DT_DIR) {
-            delete_folder_recursively(path);
+            deleteFolder(path);
         } else {
             if (remove(path) != 0) {
-                perror("Error deleting file");
+                fprintf(stderr, "Bład usuwania pliku %s\n", path);
             }
         }
     }
     closedir(dir);
 
     if (rmdir(folder_path) != 0) {
-        perror("Error deleting folder");
+        fprintf(stderr, "Błąd usuwania folderu");
     }
 }
 
-
-int wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
+void wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
     char nazwaPlikuZDanymi[50];
     sprintf(nazwaPlikuZDanymi, "pliki/plik_%d.txt", tryb);
     FILE *plik = fopen(nazwaPlikuZDanymi, "r");
     if (plik == NULL) {
-        printf("Nie można otworzyć pliku.\n");
-        return tryb;
+        //printf("Nie można otworzyć pliku.\n");
+        return;
     }
 
-    char pom[lw][lk+1];
     int i, end;
     
     if (tryb % 2 == 1) {
@@ -149,40 +139,30 @@ int wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
     
     do {
         for (int j = 0; j < lk+1; j++) {
-            fscanf(plik, "%c", &pom[i][j]);
+            char znak;
+            if (fscanf(plik, "%c", &znak) != 1) {
+                fclose(plik);
+                return;
+            }
+            if (j < lk) {
+                labirynt[i][j] = znak;
+            } else {
+
+            }
         }
         i++;
     } while (i < end);
-    
-
-    if (tryb % 2 == 1) {
-        i = 0;
-        end = lw/2;
-    } else {
-        i = lw/2;
-        end = lw;
-    }
-    
-    do {
-        for (int j = 0; j < lk; j++) {
-            labirynt[i][j]= pom[i][j];
-        }
-        i++;
-    } while (i < end);
-
 
     fclose(plik);
     //printf("\nWczytano plik: %d\n", tryb);
-    return 1;
 }
 
-
-void write_2d_array_to_file(int x, int y, char array[x][y], int tryb) {
+void wektorDoPliku(int x, int y, char array[x][y], int tryb) {
     char nazwaPlikuZDanymi[30];
     sprintf(nazwaPlikuZDanymi, "pliki/plik_%d.txt", tryb);
     FILE *file = fopen(nazwaPlikuZDanymi, "w");
     if (file == NULL) {
-        perror("Error opening file");
+        fprintf(stderr, "Błąd otwarcia pliku %s\n", nazwaPlikuZDanymi);
         return;
     }
 
@@ -253,7 +233,7 @@ void mrowka (int lwplik, int lk, char lab[lwplik][lk], int pi, int pj, int plik_
             if ((pi%lwp) == (lwp-1)) {
                 if (((pi-(pi%lwp))/lwp) > 0  && (((pi-(pi%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2) && plik_parz != (((pi-(pi%lwp))/lwp)+2) && plik_nparz != (((pi-(pi%lwp))/lwp)+2) ) {
                     //printf("\nDo dołu\npi: %d, pj: %d", pi, pj);
-                    write_2d_array_to_file(lwplik, lk, lab, ((pi-(pi%lwp))/lwp));
+                    wektorDoPliku(lwplik, lk, lab, ((pi-(pi%lwp))/lwp));
                     wczytajLabZPliku(lwplik, lk, lab, (((pi-(pi%lwp))/lwp)+2));
                     
                     if (((((pi-(pi%lwp))/lwp)+2)%2) == 0) {
@@ -270,7 +250,7 @@ void mrowka (int lwplik, int lk, char lab[lwplik][lk], int pi, int pj, int plik_
             if ((pi%lwp) == 1) {
                 if (((pi-(pi%lwp))/lwp) > 0  && (((pi-(pi%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2) && plik_parz != (((pi-(pi%lwp))/lwp)) && plik_nparz != (((pi-(pi%lwp))/lwp)) ) {
 
-                    write_2d_array_to_file(lwplik, lk, lab, ((pi-(pi%lwp))/lwp)+2);
+                    wektorDoPliku(lwplik, lk, lab, ((pi-(pi%lwp))/lwp)+2);
                     wczytajLabZPliku(lwplik, lk, lab, (((pi-(pi%lwp))/lwp)));
                     
                     if (((((pi-(pi%lwp))/lwp)+2)%2) == 0) {
@@ -285,8 +265,8 @@ void mrowka (int lwplik, int lk, char lab[lwplik][lk], int pi, int pj, int plik_
     } while (pom == 3);
     
     if (plik_nparz_kopia != plik_nparz || plik_parz_kopia != plik_parz) {
-        write_2d_array_to_file(lwplik, lk, lab, plik_nparz);
-        write_2d_array_to_file(lwplik, lk, lab, plik_parz);
+        wektorDoPliku(lwplik, lk, lab, plik_nparz);
+        wektorDoPliku(lwplik, lk, lab, plik_parz);
 
         wczytajLabZPliku(lwplik, lk, lab, plik_nparz_kopia);
         wczytajLabZPliku(lwplik, lk, lab, plik_parz_kopia);
@@ -322,7 +302,7 @@ void deadEndKill (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
         
         if ((i%lwp) == (lwp-3)) {
             if (((i-(i%lwp))/lwp) > 0  && (((i-(i%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2) ) {
-                write_2d_array_to_file(2*lwp, lk, lab, ((i-(i%lwp))/lwp));
+                wektorDoPliku(2*lwp, lk, lab, ((i-(i%lwp))/lwp));
                 wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)+2));
                 if (((((i-(i%lwp))/lwp)+2)%2) == 0) {
                     plik_parz_kopia= (((i-(i%lwp))/lwp)+2);
@@ -334,187 +314,364 @@ void deadEndKill (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
         i=i+2;
     } while (i < lw);
     
-    write_2d_array_to_file(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp) );
-    write_2d_array_to_file(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp)+1 );
+    wektorDoPliku(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp) );
+    wektorDoPliku(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp)+1 );
 }
 
-void pathFinder (int lk, int lwp, char lab[2*lwp][lk]) {
+void sciezkaBIN(const char *input_file, const char *output_file) {
+    FILE *input = fopen(input_file, "r");
+    if (input == NULL) {
+        printf("Błąd otwierania pliku wejściowego.\n");
+        return;
+    }
 
-    FILE *path = fopen("path.txt", "w");
+    FILE *output = fopen(output_file, "w");
+    if (output == NULL) {
+        printf("Błąd otwierania pliku wyjściowego.\n");
+        fclose(input);
+        return;
+    }
+
+    char current_char;
+    char previous_char = '\0';
+    int count = 0;
+
+    while ((current_char = fgetc(input)) != EOF) {
+        if (current_char != previous_char) {
+            if (previous_char != '\0') {
+                fprintf(output, "%c%d\n", previous_char, count - 1);
+            }
+            count = 1;
+        } else {
+            count++;
+        }
+        previous_char = current_char;
+    }
     
+    // Zapisujemy ostatnią sekwencję
+    if (previous_char != '\0') {
+        fprintf(output, "%c%d\n", previous_char, count - 1);
+    }
 
-    char current='t';
-    char previous='t';
-    int count=0;
+    fclose(input);
+    fclose(output);
 
-    int i = 0;
-    int j = 0;
+    // Usuwamy plik path_pom.txt
+    if (remove(input_file) == 0) {
+        //printf("Plik %s został pomyślnie usunięty.\n", input_file);
+    } else {
+        printf("Błąd podczas usuwania pliku %s.\n", input_file);
+    }
+}
 
-    int pliki = 1;
-    int found = 0;
-    while(found == 0){
-        wczytajLabZPliku(2*lwp, lk, lab, pliki);
-        wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
 
-        for(int a=0; a<2*lwp; a++){
-            for(int b=0; b<lk; b++){
-                if(lab[a][b] == 'P'){
-                    found = 1;
-                    i = a;
-                    j = b;
+void sciezkaISOD(const char *input_file, const char *output_file) {
+    FILE *input = fopen(input_file, "r");
+    if (input == NULL) {
+        printf("Błąd otwierania pliku wejściowego.\n");
+        return;
+    }
+
+    FILE *output = fopen(output_file, "w");
+    if (output == NULL) {
+        printf("Błąd otwierania pliku wyjściowego.\n");
+        fclose(input);
+        return;
+    }
+
+    // Początkowe instrukcje
+    fprintf(output, "START\n");
+
+    char line[100];
+    int forward_count = 0;
+
+    while (fgets(line, sizeof(line), input)) {
+        if (strcmp(line, "TURNRIGHT\n") == 0) {
+            if (forward_count > 1) {
+                fprintf(output, "FORWARD %d\n", forward_count);
+                forward_count = 0;
+            }
+            if (forward_count == 1) {
+                fprintf(output, "FORWARD\n");
+                forward_count = 0;
+            }
+            fprintf(output, "TURNRIGHT\n");
+        } else if (strcmp(line, "TURNLEFT\n") == 0) {
+            if (forward_count > 1) {
+                fprintf(output, "FORWARD %d\n", forward_count);
+                forward_count = 0;
+            }
+            if (forward_count == 1) {
+                fprintf(output, "FORWARD\n");
+                forward_count = 0;
+            }
+            fprintf(output, "TURNLEFT\n");
+        } else if (strcmp(line, "FORWARD\n") == 0) {
+            forward_count++;
+        }
+    }
+
+    // Zapisujemy ostatnie instrukcje FORWARD
+    if (forward_count > 1) {
+        fprintf(output, "FORWARD %d\n", forward_count);
+    }
+    if (forward_count == 1) {
+        fprintf(output, "FORWARD\n");
+        forward_count = 0;
+    }
+    // Końcowe instrukcje
+    fprintf(output, "STOP\n");
+
+    fclose(input);
+    fclose(output);
+
+    // Usuwamy plik path_isod_pom.txt
+    if (remove(input_file) == 0) {
+        //printf("Plik %s został pomyślnie usunięty.\n", input_file);
+    } else {
+        printf("Błąd podczas usuwania pliku %s.\n", input_file);
+    }
+}
+
+
+void znajdzPoczKoniec (int lw, int lk, int lwp, char lab[2*lwp][lk], int pocz_i_kon[4]) {
+    wczytajLabZPliku(2*lwp, lk, lab, 1);
+    wczytajLabZPliku(2*lwp, lk, lab, 2);
+    
+    //[0]- px (j)
+    //[1]- py (i)
+    //[2]- kx (j)
+    //[3]- ky (i)
+    
+    for (int i = 0; i < lw; i++) {
+        for (int j = 0; j < lk; j++) {
+            if (lab[((i%(2*lwp)))%(2*lwp)][j]=='P') {
+                pocz_i_kon[0] = j;
+                pocz_i_kon[1] = i;
+            }
+            if (lab[((i%(2*lwp)))%(2*lwp)][j]=='K') {
+                pocz_i_kon[2] = j;
+                pocz_i_kon[3] = i;
+            }
+        }
+        if ((i%lwp) == (lwp-3) && (((i-(i%lwp))/lwp)+2) < (((lw)-((lw)%lwp))/lwp)+2) {
+            if (((i-(i%lwp))/lwp) > 0  && (((i-(i%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2)) {
+                wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)+2));
+            }
+        }
+    }
+}
+
+
+int rozwiazSciezke (int lw, int lk, int lwp, char lab[2*lwp][lk], int i, int j, int kx, int ky, int dldrogi, char kierunek) {
+    
+    if (i < lwp) {
+        wczytajLabZPliku(2*lwp, lk, lab, 1);
+        wczytajLabZPliku(2*lwp, lk, lab, 2);
+    } else if (i < (lk-lwp)) {
+        wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)));
+        wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)+1));
+    } else {
+        wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)));
+        wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)-1));
+    }
+    
+    int pom;
+    
+    FILE *zapisdobin= fopen("path_pom.txt", "w");
+    if (zapisdobin == NULL) {
+        fprintf(stderr, "Bład otwarca pliku path_pom.txt\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    FILE *zapisisod= fopen("path_isod_pom.txt", "w");
+    if (zapisisod == NULL) {
+        fprintf(stderr, "Bład otwarca pliku path_isod_pom.txt\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    do {
+        pom = -1;
+        switch (kierunek) {
+            case 'N':
+                if (lab[i%(2*lwp)][j+1] == ' ' || lab[i%(2*lwp)][j+1] == 'K') {
+                    fprintf(zapisisod, "TURNRIGHT\nFORWARD\n");
+                    j=j+2;
+                    dldrogi++;
+                    kierunek = 'E';
                     break;
                 }
-            }
+                if (lab[((i%(2*lwp))-1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))-1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "FORWARD\n");
+                    kierunek = 'N';
+                    dldrogi++;
+                    i=i-2;
+                    break;
+                }
+                if (lab[i%(2*lwp)][j-1] == ' ' || lab[i%(2*lwp)][j-1] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nFORWARD\n");
+                    dldrogi++;
+                    j=j-2;
+                    kierunek = 'W';
+                    break;
+                }
+                if (lab[((i%(2*lwp))+1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))+1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nTURNLEFT\nFORWARD\n");
+                    dldrogi++;
+                    i=i+2;
+                    kierunek = 'S';
+                    break;
+                }
+                break;
+            case 'E':
+                if (lab[((i%(2*lwp))+1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))+1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "TURNRIGHT\nFORWARD\n");
+                    dldrogi++;
+                    i=i+2;
+                    kierunek = 'S';
+                    break;
+                }
+                if (lab[i%(2*lwp)][j+1] == ' ' || lab[i%(2*lwp)][j+1] == 'K') {
+                    fprintf(zapisisod, "FORWARD\n");
+                    dldrogi++;
+                    j=j+2;
+                    break;
+                }
+                if (lab[((i%(2*lwp))-1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))-1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nFORWARD\n");
+                    dldrogi++;
+                    i=i-2;
+                    kierunek = 'N';
+                    break;
+                }
+                if (lab[i%(2*lwp)][j-1] == ' ' || lab[i%(2*lwp)][j-1] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nTURNLEFT\nFORWARD\n");
+                    dldrogi++;
+                    j=j-2;
+                    kierunek = 'W';
+                    break;
+                }
+                break;
+            case 'S':
+                if (lab[i%(2*lwp)][j-1] == ' ' || lab[i%(2*lwp)][j-1] == 'K') {
+                    fprintf(zapisisod, "TURNRIGHT\nFORWARD\n");
+                    dldrogi++;
+                    j=j-2;
+                    kierunek = 'W';
+                    break;
+                }
+                if (lab[((i%(2*lwp))+1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))+1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "FORWARD\n");
+                    dldrogi++;
+                    i=i+2;
+                    break;
+                }
+                if (lab[i%(2*lwp)][j+1] == ' ' || lab[i%(2*lwp)][j+1] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nFORWARD\n");
+                    j=j+2;
+                    dldrogi++;
+                    kierunek = 'E';
+                    break;
+                }
+                if (lab[((i%(2*lwp))-1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))-1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nTURNLEFT\nFORWARD\n");
+                    dldrogi++;
+                    i=i-2;
+                    kierunek = 'N';
+                    break;
+                }
+                break;
+            case 'W':
+                if (lab[((i%(2*lwp))-1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))-1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "TURNRIGHT\nFORWARD\n");
+                    dldrogi++;
+                    i=i-2;
+                    kierunek = 'N';
+                    break;
+                }
+                if (lab[i%(2*lwp)][j-1] == ' ' || lab[i%(2*lwp)][j-1] == 'K') {
+                    fprintf(zapisisod, "FORWARD\n");
+                    dldrogi++;
+                    j=j-2;
+                    break;
+                }
+                if (lab[((i%(2*lwp))+1)%(2*lwp)][j] == ' ' || lab[((i%(2*lwp))+1)%(2*lwp)][j] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nFORWARD\n");
+                    dldrogi++;
+                    kierunek = 'S';
+                    i=i+2;
+                    break;
+                }
+                if (lab[i%(2*lwp)][j+1] == ' ' || lab[i%(2*lwp)][j+1] == 'K') {
+                    fprintf(zapisisod, "TURNLEFT\nTURNLEFT\nFORWARD\n");
+                    j=j+2;
+                    dldrogi++;
+                    kierunek = 'E';
+                    break;
+                }
+                break;
         }
-        pliki+=2;
-    }
-
-    
-    
-
-    if(lab[i][j] == 'P'){
-        if(j == 0){
-            j++;
-            //printf("tu1\n");
-        }else
-        if(j == lk-1){
-            j--;
-            //printf("tu2\n");
-        }else
-        if(i == 0){
-            i++;
-            //printf("tu3\n");
-        }else{
-            i--;
-            //printf("tu4\n");
-        }
-    }
-    int iter = 10;
-
-
-
-    while(lab[i+1][j] != 'K' && lab[i-1][j] != 'K' && lab[i][j-1] != 'K' && lab[i][j+1] != 'K'){
-
-        if(i == 1 && iter == 0){
-            pliki-=2;
-            wczytajLabZPliku(2*lwp, lk, lab, pliki);
-            wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
-            //printf("pliki: %d %d\n", pliki, pliki+1);
-            i = 2*lwp-1;
-            
-            count++;
-            previous = current;
-            current = 'N';
-            if(previous != current){
-                fprintf(path, "%c%d\n", previous, count);
-                previous = current;
-                count = -1;
+        fprintf(zapisdobin, "%c", kierunek);
+        
+        //plik w dol
+        if ((i%lwp) == (lwp-3) && (((i-(i%lwp))/lwp)+2) < (((lw)-((lw)%lwp))/lwp)+2) {
+            if (((i-(i%lwp))/lwp) > 0  && (((i-(i%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2)) {
+                wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)+2));
             }
-            
-            // for(int a=0; a<2*lwp; a++){
-            //     for(int b=0; b<lk; b++){
-            //         printf("%c", lab[a][b]);
-            //     }
-            //     printf("\n");
-            // }
-
-        }else
-        if((i == 31 && iter == 0) || i > 31){
-            pliki+=2;
-            wczytajLabZPliku(2*lwp, lk, lab, pliki);
-            wczytajLabZPliku(2*lwp, lk, lab, pliki+1);
-            //printf("pliki: %d %d\n", pliki, pliki+1);
-            i = 1;
-
-            count++;
-            previous = current;
-            current = 'S';
-            if(previous != current){
-                fprintf(path, "%c%d\n", previous, count);
-                previous = current;
-                count = -1;
-            }
-
-            // for(int a=0; a<2*lwp; a++){
-            //     for(int b=0; b<lk; b++){
-            //         printf("%c", lab[a][b]);
-            //     }
-            //     printf("\n");
-            // }
-        }
-
-        iter = 0;
-
-        //printf("%d, %d - %c\n", i, j, lab[i][j]);
-
-        if(lab[i][j-1] == ' ' && previous != 'E'){
-            //printf("%d, %d - %c\n", i, j, lab[i][j]);
-            current = 'W';
-            j-=2;
-            //printf("tam1\n");
-            count++;
-            if(current != previous){
-                if(previous != 't'){
-                    fprintf(path, "%c%d\n", previous, count);
-                }
-                
-                count = -1;
-                previous = current;
-            }
-            iter++;
-
-        }else if(lab[i][j+1] == ' ' && previous != 'W'){
-            //printf("%d, %d - %c\n", i, j, lab[i][j]);
-            current = 'E';
-            j+=2;
-            //printf("tam2\n");
-            count++;
-            
-            if(current != previous){
-                if(previous != 't'){
-                    fprintf(path, "%c%d\n", previous, count);
-                }
-                count = -1;
-                previous = current;
-            }
-            iter++;
-            
-        }else if(lab[i-1][j] == ' ' && previous != 'S' && i-2>=0){
-            //printf("%d, %d - %c\n", i, j, lab[i][j]);
-            current = 'N';
-            i-=2;
-            //printf("tam3\n");
-            count++;
-            if(current != previous){
-                if(previous != 't'){
-                    fprintf(path, "%c%d\n", previous, count);
-                }
-                count = -1;
-                previous = current;
-            }
-            iter++;
-            
-        }else if(lab[i+1][j] == ' ' && previous != 'N'){
-            //printf("%d, %d - %c\n", i, j, lab[i][j]);
-            current = 'S';
-            i+=2;
-            //printf("tam4\n");
-            count++;
-            if(current != previous){
-                if(previous != 't'){
-                    fprintf(path, "%c%d\n", previous, count);
-                }
-                count = -1;
-                previous = current;
-            }
-            iter++;
         }
         
-        if(lab[i+1][j] == 'K' || lab[i-1][j] == 'K' || lab[i][j-1] == 'K' || lab[i][j+1] == 'K'){
-            count++;
-            fprintf(path, "%c%d\n", previous, count);
+        //plik w gore
+        if (((i%lwp) == 1) && ((i-(i%lwp))/lwp) > 0  && (((i-(i%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2)) {
+                wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)));
         }
-    }
+        
+    } while (lab[((i%(2*lwp))-1)%(2*lwp)][j] != 'K' && lab[((i%(2*lwp))+1)%(2*lwp)][j] != 'K' && lab[i%(2*lwp)][j+1] != 'K' && lab[i%(2*lwp)][j-1] != 'K');
+    
+    fclose(zapisisod);
+    fclose(zapisdobin);
+    
+    sciezkaBIN("path_pom.txt", "path.txt");
+    sciezkaBIN("path_isod_pom.txt", "path_isod.txt");
+    
+    return dldrogi;
+}
 
-    fclose(path);
+
+void pathFind (int lw, int lk, int lwp, char lab[2*lwp][lk], int *length) {
+
+    //znajdzSkrzyzowania(lw, lk, lwp, lab);
+    
+    int pocz_i_kon[4];
+    znajdzPoczKoniec(lw, lk, lwp, lab, pocz_i_kon);
+    
+    //printf ("\nP(%d, %d)\nK(%d, %d)\n\n", pocz_i_kon[0], pocz_i_kon[1], pocz_i_kon[2], pocz_i_kon[3]);
+    
+    int i= pocz_i_kon[1];
+    int j= pocz_i_kon[0];
+    int dldrogi = 0;
+    
+    //N- idzie do góry, E- idzie w prawo, S-idzie do dołu, W- idzie w lewo
+    char kierunek;
+    
+    if (pocz_i_kon[0] == 0) {
+        j = 1;
+        kierunek = 'E';
+    }
+    if (pocz_i_kon[1] == 0) {
+        i = 1;
+        kierunek = 'S';
+    }
+    if (pocz_i_kon[0] == lk-1) {
+        j = lk-2;
+        kierunek = 'W';
+    }
+    if (pocz_i_kon[1] == lw-1) {
+        i = lw-2;
+        kierunek = 'N';
+    }
+    
+    dldrogi = rozwiazSciezke (lw, lk, lwp, lab, i, j, pocz_i_kon[2], pocz_i_kon[3], dldrogi, kierunek);
+    *length = dldrogi;
+    
+    //printf("\nDługość drogi: %d\n", dldrogi);
 }
