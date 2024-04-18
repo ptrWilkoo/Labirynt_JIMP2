@@ -12,7 +12,6 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
         // Otwarcie pliku
         file = fopen(filename, "r");
         if (file == NULL) {
-            //perror("Błąd otwarcia pliku");
             exit(EXIT_FAILURE);
         }
 
@@ -31,7 +30,6 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
     // Otwarcie pliku
     file = fopen(filename, "r");
     if (file == NULL) {
-        //perror("Błąd otwarcia pliku");
         exit(EXIT_FAILURE);
     }
 
@@ -48,18 +46,17 @@ void printPliki(int numFiles, int lw, int lk, int lwp) {
 }
 
 
-void create_folder_and_split_file(const char *input_file, int lwp) {
+void splitFile(const char *input_file, int lwp) {
     FILE *input_fp = fopen(input_file, "r");
     if (input_fp == NULL) {
-        perror("Error opening input file");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Błąd otwarcia pliku %s\n", input_file);
+        return;
     }
 
-    // Create a folder to store new files
     char folder_name[] = "pliki";
     if (mkdir(folder_name, 0777) == -1) {
-        perror("Error creating folder");
-        exit(EXIT_FAILURE);
+        fprintf(stderr, "Bład tworzernia folderu!");
+        return;
     }
 
     char output_file[MAX_LINE_LENGTH];
@@ -69,7 +66,7 @@ void create_folder_and_split_file(const char *input_file, int lwp) {
 
     char line[MAX_LINE_LENGTH];
     while (fgets(line, MAX_LINE_LENGTH, input_fp) != NULL) {
-        // Open new output file if needed
+
         if (line_count % lwp == 0) {
             if (output_fp != NULL) {
                 fclose(output_fp);
@@ -77,30 +74,25 @@ void create_folder_and_split_file(const char *input_file, int lwp) {
             sprintf(output_file, "%s/plik_%d.txt", folder_name, file_count++);
             output_fp = fopen(output_file, "w");
             if (output_fp == NULL) {
-                perror("Error creating output file");
+                fprintf(stderr, "Bład tworzenia pliku %s\n", output_file);
                 exit(EXIT_FAILURE);
             }
         }
-
-        // Write line to output file
         fputs(line, output_fp);
         line_count++;
     }
-
-    // Close last output file
     if (output_fp != NULL) {
         fclose(output_fp);
     }
 
-    // Close input file
     fclose(input_fp);
 }
 
 
-void delete_folder_recursively(const char *folder_path) {
+void deleteFolder(const char *folder_path) {
     DIR *dir = opendir(folder_path);
     if (dir == NULL) {
-        perror("Error opening folder");
+        fprintf(stderr, "Bład otwarcia folderu!");
         return;
     }
 
@@ -112,17 +104,17 @@ void delete_folder_recursively(const char *folder_path) {
         char path[1024];
         snprintf(path, sizeof(path), "%s/%s", folder_path, entry->d_name);
         if (entry->d_type == DT_DIR) {
-            delete_folder_recursively(path);
+            deleteFolder(path);
         } else {
             if (remove(path) != 0) {
-                perror("Error deleting file");
+                fprintf(stderr, "Bład usuwania pliku %s\n", path);
             }
         }
     }
     closedir(dir);
 
     if (rmdir(folder_path) != 0) {
-        perror("Error deleting folder");
+        fprintf(stderr, "Błąd usuwania folderu");
     }
 }
 
@@ -149,16 +141,13 @@ void wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
         for (int j = 0; j < lk+1; j++) {
             char znak;
             if (fscanf(plik, "%c", &znak) != 1) {
-                // Obsługa błędu wczytywania znaku
-                // Tutaj można dodać odpowiednie działania, np. zakończenie wczytywania lub obsługę błędu
                 fclose(plik);
                 return;
             }
             if (j < lk) {
                 labirynt[i][j] = znak;
             } else {
-                // Ignorowanie znaku końca linii, jeśli przekroczono liczbę kolumn
-                // Można to potraktować jako obsługę przypadku, gdy linia w pliku jest za długa
+
             }
         }
         i++;
@@ -168,15 +157,12 @@ void wczytajLabZPliku(int lw, int lk, char labirynt[lw][lk], int tryb) {
     //printf("\nWczytano plik: %d\n", tryb);
 }
 
-
-
-
-void write_2d_array_to_file(int x, int y, char array[x][y], int tryb) {
+void wektorDoPliku(int x, int y, char array[x][y], int tryb) {
     char nazwaPlikuZDanymi[30];
     sprintf(nazwaPlikuZDanymi, "pliki/plik_%d.txt", tryb);
     FILE *file = fopen(nazwaPlikuZDanymi, "w");
     if (file == NULL) {
-        perror("Error opening file");
+        fprintf(stderr, "Błąd otwarcia pliku %s\n", nazwaPlikuZDanymi);
         return;
     }
 
@@ -247,7 +233,7 @@ void mrowka (int lwplik, int lk, char lab[lwplik][lk], int pi, int pj, int plik_
             if ((pi%lwp) == (lwp-1)) {
                 if (((pi-(pi%lwp))/lwp) > 0  && (((pi-(pi%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2) && plik_parz != (((pi-(pi%lwp))/lwp)+2) && plik_nparz != (((pi-(pi%lwp))/lwp)+2) ) {
                     //printf("\nDo dołu\npi: %d, pj: %d", pi, pj);
-                    write_2d_array_to_file(lwplik, lk, lab, ((pi-(pi%lwp))/lwp));
+                    wektorDoPliku(lwplik, lk, lab, ((pi-(pi%lwp))/lwp));
                     wczytajLabZPliku(lwplik, lk, lab, (((pi-(pi%lwp))/lwp)+2));
                     
                     if (((((pi-(pi%lwp))/lwp)+2)%2) == 0) {
@@ -264,7 +250,7 @@ void mrowka (int lwplik, int lk, char lab[lwplik][lk], int pi, int pj, int plik_
             if ((pi%lwp) == 1) {
                 if (((pi-(pi%lwp))/lwp) > 0  && (((pi-(pi%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2) && plik_parz != (((pi-(pi%lwp))/lwp)) && plik_nparz != (((pi-(pi%lwp))/lwp)) ) {
 
-                    write_2d_array_to_file(lwplik, lk, lab, ((pi-(pi%lwp))/lwp)+2);
+                    wektorDoPliku(lwplik, lk, lab, ((pi-(pi%lwp))/lwp)+2);
                     wczytajLabZPliku(lwplik, lk, lab, (((pi-(pi%lwp))/lwp)));
                     
                     if (((((pi-(pi%lwp))/lwp)+2)%2) == 0) {
@@ -279,8 +265,8 @@ void mrowka (int lwplik, int lk, char lab[lwplik][lk], int pi, int pj, int plik_
     } while (pom == 3);
     
     if (plik_nparz_kopia != plik_nparz || plik_parz_kopia != plik_parz) {
-        write_2d_array_to_file(lwplik, lk, lab, plik_nparz);
-        write_2d_array_to_file(lwplik, lk, lab, plik_parz);
+        wektorDoPliku(lwplik, lk, lab, plik_nparz);
+        wektorDoPliku(lwplik, lk, lab, plik_parz);
 
         wczytajLabZPliku(lwplik, lk, lab, plik_nparz_kopia);
         wczytajLabZPliku(lwplik, lk, lab, plik_parz_kopia);
@@ -316,7 +302,7 @@ void deadEndKill (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
         
         if ((i%lwp) == (lwp-3)) {
             if (((i-(i%lwp))/lwp) > 0  && (((i-(i%lwp))/lwp)+2) < ((lw-(lw%lwp)/lwp)+2) ) {
-                write_2d_array_to_file(2*lwp, lk, lab, ((i-(i%lwp))/lwp));
+                wektorDoPliku(2*lwp, lk, lab, ((i-(i%lwp))/lwp));
                 wczytajLabZPliku(2*lwp, lk, lab, (((i-(i%lwp))/lwp)+2));
                 if (((((i-(i%lwp))/lwp)+2)%2) == 0) {
                     plik_parz_kopia= (((i-(i%lwp))/lwp)+2);
@@ -328,11 +314,11 @@ void deadEndKill (int lw, int lk, int lwp, char lab[2*lwp][lk]) {
         i=i+2;
     } while (i < lw);
     
-    write_2d_array_to_file(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp) );
-    write_2d_array_to_file(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp)+1 );
+    wektorDoPliku(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp) );
+    wektorDoPliku(2*lwp, lk, lab, (((lw)-((lw)%lwp))/lwp)+1 );
 }
 
-void transform_sequence(const char *input_file, const char *output_file) {
+void sciezkaBIN(const char *input_file, const char *output_file) {
     FILE *input = fopen(input_file, "r");
     if (input == NULL) {
         printf("Błąd otwierania pliku wejściowego.\n");
@@ -379,7 +365,7 @@ void transform_sequence(const char *input_file, const char *output_file) {
 }
 
 
-void transform_instructions(const char *input_file, const char *output_file) {
+void sciezkaISOD(const char *input_file, const char *output_file) {
     FILE *input = fopen(input_file, "r");
     if (input == NULL) {
         printf("Błąd otwierania pliku wejściowego.\n");
@@ -494,13 +480,13 @@ int rozwiazSciezke (int lw, int lk, int lwp, char lab[2*lwp][lk], int i, int j, 
     
     FILE *zapisdobin= fopen("path_pom.txt", "w");
     if (zapisdobin == NULL) {
-        perror("Error opening file");
+        fprintf(stderr, "Bład otwarca pliku path_pom.txt\n");
         exit(EXIT_FAILURE);
     }
     
     FILE *zapisisod= fopen("path_isod_pom.txt", "w");
     if (zapisisod == NULL) {
-        perror("Error opening file");
+        fprintf(stderr, "Bład otwarca pliku path_isod_pom.txt\n");
         exit(EXIT_FAILURE);
     }
     
@@ -644,8 +630,8 @@ int rozwiazSciezke (int lw, int lk, int lwp, char lab[2*lwp][lk], int i, int j, 
     fclose(zapisisod);
     fclose(zapisdobin);
     
-    transform_sequence("path_pom.txt", "path.txt");
-    transform_instructions("path_isod_pom.txt", "path_isod.txt");
+    sciezkaBIN("path_pom.txt", "path.txt");
+    sciezkaBIN("path_isod_pom.txt", "path_isod.txt");
     
     return dldrogi;
 }

@@ -32,7 +32,7 @@ void outputFromBinary(FILE *in, int *kroki){
     FILE *sciezka = fopen("path.txt", "rt");
 
     if(FileOpenError(sciezka, "path.txt")){
-
+        printf("Błąd otwarcia pliku path.txt\n");
         return;
     }
 
@@ -102,8 +102,8 @@ void outputFromBinary(FILE *in, int *kroki){
 
     // zapis sciezki
     fwrite(&id, sizeof(uint32_t), 1, out);
-    uint8_t steps = *kroki;
-    fwrite(&steps, sizeof(uint8_t), 1, out);
+    uint32_t steps = *kroki;
+    fwrite(&steps, sizeof(uint32_t), 1, out);
 
     int c = 0;
     int prev = 't';
@@ -251,7 +251,6 @@ void outputFromText(FILE *in, int *kroki){
     int prev_ch = 't';
     count = 0;
     int znak = 0;
-    int test = 0;
     while((ch = fgetc(in)) != EOF){
 
         if(ch == 'X'){
@@ -309,10 +308,10 @@ void outputFromText(FILE *in, int *kroki){
     }
 
     uint32_t path_id = 0x52524243;
-    uint8_t steps = *kroki;
+    uint32_t steps = *kroki;
 
     fwrite(&path_id, sizeof(uint32_t), 1, out);
-    fwrite(&steps, sizeof(uint8_t), 1, out);
+    fwrite(&steps, sizeof(uint32_t), 1, out);
 
 
     // zapis sciezki

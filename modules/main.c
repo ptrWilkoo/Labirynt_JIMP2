@@ -51,7 +51,7 @@ int main(int argc, char **argv){
         if (wiersze_pom >= 32) {
             ilosclinii= 32;
         }
-        create_folder_and_split_file(argv[2], ilosclinii);
+        splitFile(argv[2], ilosclinii);
     }
     if(bflag == 1){
         bin = fopen(argv[2], "rb");
@@ -69,19 +69,19 @@ int main(int argc, char **argv){
         if (wiersze_pom >= 32) {
             ilosclinii= 32;
         }
-        create_folder_and_split_file("maze.txt", ilosclinii);
+        splitFile("maze.txt", ilosclinii);
     }
 
     if(ExitError(in)){
-        delete_folder_recursively("pliki");
+        deleteFolder("pliki");
         return 103;
     }
     if(EntryError(in)){
-        delete_folder_recursively("pliki");
+        deleteFolder("pliki");
         return 103;
     }
     if(invalidMaze(in)){
-        delete_folder_recursively("pliki");
+        deleteFolder("pliki");
         return 103;
     }
     
@@ -111,7 +111,7 @@ int main(int argc, char **argv){
         outputFromBinary(bin, &steps);
     }
     
-    delete_folder_recursively("pliki");
+    deleteFolder("pliki");
     fclose(in);
     fclose(bin);
 }
