@@ -631,7 +631,7 @@ int rozwiazSciezke (int lw, int lk, int lwp, char lab[2*lwp][lk], int i, int j, 
     fclose(zapisdobin);
     
     sciezkaBIN("path_pom.txt", "path.txt");
-    sciezkaBIN("path_isod_pom.txt", "path_isod.txt");
+    sciezkaISOD("path_isod_pom.txt", "path_isod.txt");
     
     return dldrogi;
 }

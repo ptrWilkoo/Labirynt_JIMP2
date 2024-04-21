@@ -14,7 +14,7 @@ int main(int argc, char **argv){
     
     if(argc<2){
         fprintf(stderr, "Brak parametrow wywolania!\n\n");
-        fprintf(stderr, "\nSposób wywołania:\n%s -t <Nazwa Pliku>\nW przypadku pliku tekstowego\n\n./a.out -b <Nazwa Plik>\nW przypadku pliku binarnego\n\n", argv[0]);
+        fprintf(stderr, "\nSposób wywołania:\n%s -t <Nazwa Pliku>\nW przypadku pliku tekstowego\n\n%s -b <Nazwa Plik>\nW przypadku pliku binarnego\n\n", argv[0], argv[0]);
         return 102;
 
     }
