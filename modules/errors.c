@@ -23,7 +23,7 @@ int EntryError(FILE *file){
     fseek(file, 0, SEEK_SET);
 
     if(count == 0 || count > 1){
-        fprintf(stderr, "Plik jest uszkodzony - więcej niz jeden początek");
+        fprintf(stderr, "Plik jest uszkodzony - zła liczba początkow!");
         return 1;
     }else{
         return 0;
@@ -42,7 +42,7 @@ int ExitError(FILE *file){
     fseek(file, 0, SEEK_SET);
 
     if(count == 0 || count > 1){
-        fprintf(stderr, "Plik jest uszkodzony - więcej niz jeden koniec");
+        fprintf(stderr, "Plik jest uszkodzony - zła liczba końców!");
         return 1;
     }else{
         return 0;
